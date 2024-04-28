@@ -8,45 +8,53 @@ interface UserListProps {
 }
 
 const UserList: React.FC<UserListProps> = ({ users, deleteUser, editUser }) => {
-  const [editedName, setEditedName] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [editedNames, setEditedNames] = useState<{ [userId: number]: string }>(
+    {}
+  );
+  const [isEditing, setIsEditing] = useState<{ [userId: number]: boolean }>({});
 
-  const handleEdit = (currentName: string) => {
-    setEditedName(currentName);
-    setIsEditing(true);
+  const handleEdit = (userId: number, currentName: string) => {
+    setEditedNames((prevState) => ({ ...prevState, [userId]: currentName }));
+    setIsEditing((prevState) => ({ ...prevState, [userId]: true }));
   };
 
   const handleSaveEdit = (userId: number) => {
-    if (editedName !== null && editedName.trim() !== "") {
+    const editedName = editedNames[userId];
+    if (editedName !== undefined && editedName.trim() !== "") {
       editUser(userId, editedName);
-      setEditedName(null);
-      setIsEditing(false);
+      setIsEditing((prevState) => ({ ...prevState, [userId]: false }));
     }
   };
 
-  const handleCancelEdit = () => {
-    setEditedName(null);
-    setIsEditing(false);
+  const handleCancelEdit = (userId: number) => {
+    setIsEditing((prevState) => ({ ...prevState, [userId]: false }));
   };
 
   return (
     <ul className="user-list">
       {users.map((user) => (
         <li key={user.id}>
-          {isEditing && editedName !== null ? (
+          {isEditing[user.id] && editedNames[user.id] !== undefined ? (
             <>
               <input
                 type="text"
-                value={editedName}
-                onChange={(e) => setEditedName(e.target.value)}
+                value={editedNames[user.id]}
+                onChange={(e) =>
+                  setEditedNames((prevState) => ({
+                    ...prevState,
+                    [user.id]: e.target.value,
+                  }))
+                }
               />
               <button onClick={() => handleSaveEdit(user.id)}>Save</button>
-              <button onClick={handleCancelEdit}>Cancel</button>
+              <button onClick={() => handleCancelEdit(user.id)}>Cancel</button>
             </>
           ) : (
             <>
               {user.name}
-              <button onClick={() => handleEdit(user.name)}>Edit</button>
+              <button onClick={() => handleEdit(user.id, user.name)}>
+                Edit
+              </button>
               <button onClick={() => deleteUser(user.id)}>Delete</button>
             </>
           )}
