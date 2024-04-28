@@ -11,7 +11,7 @@ const UserList: React.FC<UserListProps> = ({ users, deleteUser, editUser }) => {
   const [editedName, setEditedName] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
 
-  const handleEdit = (userId: number, currentName: string) => {
+  const handleEdit = (currentName: string) => {
     setEditedName(currentName)
     setIsEditing(true)
   }
